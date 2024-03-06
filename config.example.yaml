@@ -1,0 +1,25 @@
+redis:
+  host: "127.0.0.1"
+  port: 6379
+  db: 0
+  user: root
+  pass:
+
+funnel:
+
+zf:
+
+captcha:
+
+user:
+  oauth:
+  zf:
+  student_id:
+  year:
+  term:
+
+email:
+  sender: "12345678@qq.com"
+  pwd:  "12345678"
+  smtpaddr: "smtp.qq.com"
+  smtpport: 465
