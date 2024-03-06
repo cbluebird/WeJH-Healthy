@@ -40,13 +40,13 @@ func Handler(ctx context.Context, t *asynq.Task) error {
 						log.Println(err)
 					}
 				} else if p.Cnt == 10 {
-					redis.RedisClient.Set(ctx, "ZF_KEY", false, 0)
+					redis.RedisClient.Set(ctx, "ZF_KEY", true, 0)
 					PutEmailTask(ZFRetry)
 				}
 				PutRetryTask(ZFRetry, p.Cnt)
 				return err
 			}
-			redis.RedisClient.Set(ctx, "ZF_KEY", true, 0)
+			redis.RedisClient.Del(ctx, "ZF_KEY")
 			PutTestTask(ZF)
 
 		case Oauth:
@@ -68,13 +68,13 @@ func Handler(ctx context.Context, t *asynq.Task) error {
 						log.Println(err)
 					}
 				} else if p.Cnt == 10 {
-					redis.RedisClient.Set(ctx, "Oauth_KEY", false, 0)
+					redis.RedisClient.Set(ctx, "Oauth_KEY", true, 0)
 					PutEmailTask(p.Type)
 				}
 				PutRetryTask(p.Type, p.Cnt)
 				return err
 			}
-			redis.RedisClient.Set(ctx, "Oauth_KEY", true, 0)
+			redis.RedisClient.Del(ctx, "Oauth_KEY")
 			PutTestTask(Oauth)
 
 		case Captcha:
