@@ -15,7 +15,7 @@ func Init() asynq.RedisClientOpt {
 		DB:       0,
 	}
 	if config.Config.IsSet("redis.host") && config.Config.IsSet("redis.port") {
-		info.Addr = config.Config.GetString("redis.host") + config.Config.GetString("redis.port")
+		info.Addr = config.Config.GetString("redis.host") + ":" + config.Config.GetString("redis.port")
 	}
 	if config.Config.IsSet("redis.pass") {
 		info.Password = config.Config.GetString("redis.pass")
