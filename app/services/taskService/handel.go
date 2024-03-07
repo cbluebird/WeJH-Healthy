@@ -15,18 +15,17 @@ import (
 	"time"
 )
 
-var ctx context.Context
-
 func clearAll(info asynq.RedisClientOpt) error {
 	inspector := asynq.NewInspector(info)
-
+	redis.RedisClient.Del(context.Background(), "asynq:{healthy-check}:active")
+	redis.RedisClient.Del(context.Background(), "asynq:{healthy-retry}:active")
 	if err := inspector.DeleteQueue("healthy-check", true); err != nil {
 		return err
 	}
 	if err := inspector.DeleteQueue("healthy-retry", true); err != nil {
 		return err
 	}
-	return nil
+	return inspector.Close()
 }
 
 func Init() (*asynq.ServeMux, error) {
@@ -53,7 +52,6 @@ func Init() (*asynq.ServeMux, error) {
 		log.Fatal(err)
 	}
 
-	redis.RedisClient.Del(ctx, "email")
 	mux := asynq.NewServeMux()
 	mux.HandleFunc("email", emailHandel)
 	mux.HandleFunc("healthy-check", healthyHandel)
@@ -123,7 +121,7 @@ func retryHandel(ctx context.Context, t *asynq.Task) error {
 	case ZFRetry:
 		err := funnelService.ZFTest()
 		if err == nil {
-			redis.RedisClient.Del(ctx, "ZF_KEY")
+			redis.RedisClient.Del(context.Background(), "ZF_KEY")
 			PutTestTask(ZF)
 		}
 		return err
@@ -131,7 +129,7 @@ func retryHandel(ctx context.Context, t *asynq.Task) error {
 	case OauthRetry:
 		err := funnelService.OauthTest()
 		if err == nil {
-			redis.RedisClient.Del(ctx, "Oauth_KEY")
+			redis.RedisClient.Del(context.Background(), "Oauth_KEY")
 			PutTestTask(Oauth)
 		}
 		return err
@@ -172,10 +170,10 @@ func retryFunc(n int, e error, t *asynq.Task) time.Duration {
 			}
 			switch p.Type {
 			case ZF:
-				redis.RedisClient.Set(ctx, "ZF_KEY", true, 0)
+				redis.RedisClient.Set(context.Background(), "ZF_KEY", true, 0)
 				PutRetryTask(ZFRetry)
 			case Oauth:
-				redis.RedisClient.Set(ctx, "Oauth_KEY", true, 0)
+				redis.RedisClient.Set(context.Background(), "Oauth_KEY", true, 0)
 				PutRetryTask(OauthRetry)
 			case Captcha:
 				PutRetryTask(CaptchaRetry)

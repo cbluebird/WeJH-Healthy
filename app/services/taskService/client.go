@@ -17,7 +17,7 @@ func PutTestTask(t TaskType) {
 		return
 	}
 	t1 := asynq.NewTask("healthy-check", payload)
-	_, err = task.AsynqClient.Enqueue(t1, asynq.ProcessIn(6*time.Hour), asynq.MaxRetry(10), asynq.Queue("healthy-check"))
+	_, err = task.AsynqClient.Enqueue(t1, asynq.ProcessIn(6*time.Hour), asynq.MaxRetry(10), asynq.Queue("healthy-check"), asynq.Timeout(60*time.Second))
 	if err != nil {
 		log.Println(err)
 		return
@@ -33,7 +33,7 @@ func PutRetryTask(t TaskType) {
 		return
 	}
 	t1 := asynq.NewTask("healthy-retry", payload)
-	_, err = task.AsynqClient.Enqueue(t1, asynq.ProcessIn(30*time.Minute), asynq.MaxRetry(5), asynq.Queue("healthy-retry"))
+	_, err = task.AsynqClient.Enqueue(t1, asynq.ProcessIn(30*time.Minute), asynq.MaxRetry(5), asynq.Queue("healthy-retry"), asynq.Timeout(60*time.Second))
 	if err != nil {
 		log.Println(err)
 		return
@@ -78,9 +78,15 @@ func CheckInit() error {
 	if _, err = task.AsynqClient.Enqueue(t1, asynq.MaxRetry(10), asynq.Queue("healthy-check")); err != nil {
 		return err
 	}
+
+	time.Sleep(5 * time.Second)
+
 	if _, err = task.AsynqClient.Enqueue(t2, asynq.MaxRetry(10), asynq.Queue("healthy-check")); err != nil {
 		return err
 	}
+
+	time.Sleep(5 * time.Second)
+
 	if _, err = task.AsynqClient.Enqueue(t3, asynq.MaxRetry(10), asynq.Queue("healthy-check")); err != nil {
 		return err
 	}
