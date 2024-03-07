@@ -1,7 +1,6 @@
 package taskService
 
 type TaskPayload struct {
-	Cnt  int
 	Type TaskType
 }
 

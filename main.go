@@ -3,9 +3,9 @@ package main
 import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/hibiken/asynq"
 	"healthy/app/midwares"
 	"healthy/app/services/taskService"
+	"healthy/config/config"
 	"healthy/config/router"
 	"healthy/config/task"
 	"log"
@@ -26,21 +26,18 @@ func main() {
 		r.NoRoute(midwares.HandleNotFound)
 		router.Init(r)
 
-		err := r.Run()
-		if err != nil {
-			log.Fatal("ServerStartFailed", err)
+		if err := r.Run(":" + config.Config.GetString("port")); err != nil {
+			log.Fatal("gin Server Start Failed", err)
 		}
 	}()
 
 	go func() {
-		info := task.Init()
-		task.AsynqClient = asynq.NewClient(info)
-		task.AsynqServer = asynq.NewServer(
-			info,
-			asynq.Config{Concurrency: 10}, //Concurrency表示最大并发处理任务数。
-		)
-		if err := task.AsynqServer.Run(asynq.HandlerFunc(taskService.Handler)); err != nil {
+		mux, err := taskService.Init()
+		if err != nil {
 			log.Fatal(err)
+		}
+		if err = task.AsynqServer.Run(mux); err != nil {
+			log.Fatal("mq server start failed", err)
 		}
 	}()
 

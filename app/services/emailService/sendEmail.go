@@ -7,7 +7,7 @@ import (
 	"log"
 )
 
-func SendEmail(service string) {
+func SendEmail(service string) error {
 	email.MailConf.Title = "微精弘警报"
 	email.MailConf.RecipientList = []string{email.MailConf.Sender}
 	html := fmt.Sprintf(`<div>
@@ -27,4 +27,5 @@ func SendEmail(service string) {
 	if err != nil {
 		log.Println(err)
 	}
+	return err
 }
