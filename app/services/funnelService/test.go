@@ -77,5 +77,8 @@ func FetchHandleOfPost(form url.Values, url api.FunnelApi) (interface{}, error) 
 	if rc.Code == 412 {
 		return rc.Data, apiException.NoThatPasswordOrWrong
 	}
+	if rc.Code != 200 {
+		return rc.Data, apiException.ServerError
+	}
 	return rc.Data, nil
 }

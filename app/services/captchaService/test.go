@@ -21,10 +21,10 @@ func CaptchaTest() error {
 	if err != nil {
 		return err
 	}
-	if len(f.Cookie) < 1 {
+	if len(f.Cookie) < 2 {
 		return apiException.UnknownLoginError
 	}
-	captcha, err := f.Get(api.CaptchaHost + "?session=" + f.Cookie[0].Value + "&route=" + "/jwglxt")
+	captcha, err := f.Get(api.CaptchaHost + "?session=" + f.Cookie[0].Value + "&route=" + f.Cookie[1].Value)
 	if err != nil {
 		return err
 	}
